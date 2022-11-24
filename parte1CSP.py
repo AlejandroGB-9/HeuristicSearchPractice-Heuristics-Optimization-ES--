@@ -138,6 +138,128 @@ elif (len(alumnos_mov_reducidos_ciclo1) == 0) and (len(alumnos_mov_reducidos_cic
     
 else:
     asign_domain_alumnos()
-       
+
+#------------------------------------------------------------
+
+#Funciones para restricciones.
+
+def conflictivos(a,b):
+    #Un alumno conflictivo no puede tener otros alumnos alrededor.
+    if a[0] == b[0] and abs(a[1] - b[1]) > 1:
+        return True
+    
+    if a[1] == b[1] and abs(a[0] - b[0]) > 1:
+        return True
+    
+    if (a[0] + 1) == b[0] and abs(a[1] - b[1]) > 1:
+        return True
+
+    if (a[0] - 1) == b[0] and abs(a[1] - b[1]) > 1:
+        return True
+    
+    if (a[1] + 1) == b[1] and abs(a[0] - b[0]) > 1:
+        return True
+    
+    if (a[1] - 1) == b[1] and abs(a[0] - b[0]) > 1:
+        return True
+
+def mov_reducida(a,b):
+    #Un alumno con movilidad reducida no puede tener otros alumnos en el asiento de al lado.
+    if a[0] == 0 and b[0] != 1 and a[1] == b[1]:
+        return True
+    
+    if a[0] == 1 and b[0] != 0 and a[1] == b[1]:
+        return True
+    
+    if a[0] == 2 and b[0] != 3 and a[1] == b[1]:
+        return True
+    
+    if a[0] == 3 and b[0] != 2 and a[1] == b[1]:
+        return True
+
+def hermanos_ciclos(a,b):  
+    #Dos alumnos que sean hermanos deben estar sentados uno al lado del otro.
+    if a[0] == b[0] and abs(a[1] - b[1]) == 1:
+        return True
+    
+def hermanos_conflictivos(a,b,c):
+    #Los dos hermanos conflictivos no pueden tener nadie alrededor.
+    if (a[0] == b[0]) and (abs(a[1] - b[1]) == 1) and (a[0]>b[0]):
+        
+        if a[0] == c[0] and (a[1] - c[1]) > 1:
+            return True
+        
+        if b[0] == c[0] and (c[1] - b[1]) > 1:
+            return True
+        
+        if (a[0] + 1) == c[0] and (a[1] - c[1]) > 1:
+            return True
+        
+        if(b[0] + 1) == c[0] and (c[1] - b[1]) > 1:
+            return True
+        
+        if (a[0] - 1) == c[0] and (a[1] - c[1]) > 1:
+            return True
+        
+        if (b[0] - 1) == c[0] and (c[1] - b[1]) > 1:
+            return True
+        
+        if (a[1] + 1) == c[1] and (a[0] - c[0]) > 1:
+            return True
+        
+        if (a[1] - 1) == c[1] and (a[0] - c[0]) > 1:
+            return True
+        
+        if (b[1] + 1) == c[1] and (c[0] - b[0]) > 1:
+            return True
+        
+        if (b[1] - 1) == c[1] and (c[0] - b[0]) > 1:
+            return True
+    if (a[0] == b[0]) and (abs(a[1] - b[1]) == 1) and (b[0]>a[0]):
+        
+        if b[0] == c[0] and (b[1] - c[1]) > 1:
+            return True
+        
+        if a[0] == c[0] and (c[1] - a[1]) > 1:
+            return True
+        
+        if (b[0] + 1) == c[0] and (b[1] - c[1]) > 1:
+            return True
+        
+        if(a[0] + 1) == c[0] and (c[1] - a[1]) > 1:
+            return True
+        
+        if (b[0] - 1) == c[0] and (b[1] - c[1]) > 1:
+            return True
+        
+        if (a[0] - 1) == c[0] and (c[1] - a[1]) > 1:
+            return True
+        
+        if (b[1] + 1) == c[1] and (b[0] - c[0]) > 1:
+            return True
+        
+        if (b[1] - 1) == c[1] and (b[0] - c[0]) > 1:
+            return True
+        
+        if (a[1] + 1) == c[1] and (a[0] - b[0]) > 1:
+            return True
+        
+        if (a[1] - 1) == c[1] and (a[0] - b[0]) > 1:
+            return True
+    
+#------------------------------------------------------------
+
+#Añadir restricciones.
+
+#------------------------------------------------------------
+
+#Conseguir las soluciones.
+
+#------------------------------------------------------------
+
+#Imprimir las soluciones en un archivo de texto, inversión de la matriz.
+
+#------------------------------------------------------------        
+        
         
     
