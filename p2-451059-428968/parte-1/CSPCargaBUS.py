@@ -449,7 +449,8 @@ for i in range(len(alumnos_bus)):
     for key, value in solucion.items(): 
         alumnos_sol = str(key[0] + key[3] + key[2])
         if alumno == alumnos_sol:
-            text_solution[alumno] = value
+            position = value[0]*4 + value[1] + 1
+            text_solution[alumno] = position
             
 data.replace(".txt", ".output")
 file_output = open(data, "w")
