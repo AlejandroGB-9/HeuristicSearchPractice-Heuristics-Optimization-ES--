@@ -118,23 +118,37 @@ def no_mov_redc_ciclo1():
         #Caso para solo un hermano con movilidad reducida.
         #El que no es de movilidad reducida se le asigna el dominio del ciclo del hermano con movilidad reducida para que le pueda ayudar estando próximo a él.
         
-        if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
+        #Hermanos con el mismo ciclo.
+        
+        if (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo1)
+            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo1)
             
-        elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
+        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
-            problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
+            #Caso para los dos hermanos con movilidad reducida.
             
-        #Caso para los dos hermanos con movilidad reducida.
+            if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
             
-        elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
+                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+                
+            elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
+                
+            elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
             
+                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                
+            else:
+                
+                problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+         
         #Hermanos con distinto ciclo.
         #Se asigna el dominio del menor que corresponde al ciclo 1 a ambos.
             
@@ -142,18 +156,6 @@ def no_mov_redc_ciclo1():
             
             problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
             problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
-            
-        #Hermanos con el mismo ciclo.
-            
-        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
-            
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
-            
-        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
-            
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
         
         i+=2  
       
@@ -178,28 +180,40 @@ def no_mov_redc_ciclo2():
         
     #Dominio para los hermanos    
         
-    while i < len(alumnos_hermanos):
-        
-        #Caso para solo un hermano con movilidad reducida.
+    #Caso para solo un hermano con movilidad reducida.
         #El que no es de movilidad reducida se le asigna el dominio del ciclo del hermano con movilidad reducida para que le pueda ayudar estando próximo a él.
         
-        if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
+        #Hermanos con el mismo ciclo.
+        
+        if (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo2)
+            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo2)
             
-        elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
+        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
+            #Caso para los dos hermanos con movilidad reducida.
             
-        #Caso para los dos hermanos con movilidad reducida.
+            if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
             
-        elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
+                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+                
+            elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
+                
+            elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
             
+                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                
+            else:
+                
+                problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
+                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+         
         #Hermanos con distinto ciclo.
         #Se asigna el dominio del menor que corresponde al ciclo 1 a ambos.
             
@@ -207,18 +221,6 @@ def no_mov_redc_ciclo2():
             
             problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso)
             problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso)
-            
-        #Hermanos con el mismo ciclo.
-            
-        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
-            
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
-            
-        elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
-            
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
         
         i+=2  
        
@@ -251,13 +253,13 @@ def no_mov_redc():
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo1)
+            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo1)
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo2)
+            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo2)
         
         i+=2  
 
@@ -371,7 +373,7 @@ for i in range(0, len(alumnos_bus)):
     if int(alumnos_bus[i][4]) != 0:
         
         hermano = buscar_hermano(alumnos_bus[i][4])
-        if alumnos_bus[i] not in alumnos_hermanos:
+        if (alumnos_bus[i] and hermano) not in alumnos_hermanos:
             
             alumnos_hermanos.append(alumnos_bus[i])
             alumnos_hermanos.append(hermano)
@@ -465,13 +467,6 @@ def conflictivos(a,b):
         
         return True
     
-    #Se comprueba si los alumnos están en la misma fila, esto es la vertical de la matriz.
-    #Si la diferencia entre ambos alumnos en mayor a 1 entre los asientos de arriba y abajo al del alumnos conflictivo, se devuelve True.
-    
-    if a[1] == b[1] and abs(a[0] - b[0]) > 1:
-        
-        return True
-    
     #Se comprueba el mismo caso de la horizontal para la horizontal de arriba y de abajo. Es decir, la fila de de arriba y la de abajo al alumno conflictivo.
     
     if (a[0] + 1) == b[0] and abs(a[1] - b[1]) > 1:
@@ -519,7 +514,7 @@ def hermanos_conflictivos(a,b,c):
     #Se realizan las misma comprobaciones que en la función conflictivos.
     #Las comprobaciones se realizan simultaneamente para los dos hermanos conflictivos ante otro alumno.
     
-    if (a[0] == b[0]) and (abs(a[1] - b[1]) == 1) and (a[0]>b[0]):
+    if (a[0] == b[0]) and (abs(a[1] - b[1]) == 1) and ((a[1] != 1 and b[1] != 2) or (a[1] != 2 and b[1] != 1)):
         
         if a[0] == c[0] and (a[1] - c[1]) > 1:
             
@@ -542,32 +537,6 @@ def hermanos_conflictivos(a,b,c):
             return True
         
         if (b[0] - 1) == c[0] and (c[1] - b[1]) > 1:
-            
-            return True
-        
-    if (a[0] == b[0]) and (abs(a[1] - b[1]) == 1) and (b[0]>a[0]):
-        
-        if b[0] == c[0] and (b[1] - c[1]) > 1:
-            
-            return True
-        
-        if a[0] == c[0] and (c[1] - a[1]) > 1:
-            
-            return True
-        
-        if (b[0] + 1) == c[0] and (b[1] - c[1]) > 1:
-            
-            return True
-        
-        if(a[0] + 1) == c[0] and (c[1] - a[1]) > 1:
-            
-            return True
-        
-        if (b[0] - 1) == c[0] and (b[1] - c[1]) > 1:
-            
-            return True
-        
-        if (a[0] - 1) == c[0] and (c[1] - a[1]) > 1:
             
             return True
 
@@ -640,21 +609,7 @@ while i < len(alumnos_hermanos):
             problem.addConstraint(mov_reducida, (alumnos_hermanos[i], alumnos_hermanos[j]))
              
     i+=1   
-
-#Hermanos.
-
-while i < len(alumnos_hermanos):
     
-    if alumnos_hermanos[i][1] == alumnos_hermanos[i+1][1]:
-        
-        problem.addConstraint(hermanos_ciclos, (alumnos_hermanos[i], alumnos_hermanos[i+1]))
-        
-    if alumnos_hermanos[i][1] != alumnos_hermanos[i+1][1]:
-        
-        problem.addConstraint(hermanos_distinto_ciclo, (alumnos_hermanos[i], alumnos_hermanos[i+1]))
-        
-    i += 2
-        
 #Hermanos conflictivos.
 
 while i < len(alumnos_hermanos):
@@ -665,7 +620,7 @@ while i < len(alumnos_hermanos):
         
         for j in range(len(alumnos_bus)):
             
-            if j != i and j != i+1:
+            if alumnos_bus[j] != alumnos_hermanos[i] and alumnos_bus[j] != alumnos_hermanos[i+1]:
                 
                 problem.addConstraint(hermanos_conflictivos, (alumnos_hermanos[i], alumnos_hermanos[i+1], alumnos_bus[j]))
                 
@@ -677,16 +632,34 @@ while i < len(alumnos_hermanos):
             
             if alumnos_hermanos[i][3] == "C":
                 
-                if j != i:
+                if alumnos_bus[j] != alumnos_hermanos[i]:
                     
                     problem.addConstraint(conflictivos, (alumnos_hermanos[i], alumnos_bus[j])) 
                     
             elif alumnos_hermanos[i+1][3] == "C":
                 
-                if j != i+1:
+                if alumnos_bus[j] != alumnos_hermanos[i+1]:
                     
                     problem.addConstraint(conflictivos, (alumnos_hermanos[i+1], alumnos_bus[j]))  
                     
+    i += 2
+
+#Hermanos.
+
+while i < len(alumnos_hermanos):
+    
+    if alumnos_hermanos[i][1] == alumnos_hermanos[i+1][1]:
+        
+        problem.addConstraint(hermanos_ciclos, (alumnos_hermanos[i], alumnos_hermanos[i+1]))
+        
+    if alumnos_hermanos[i][1] < alumnos_hermanos[i+1][1]:
+        
+        problem.addConstraint(hermanos_distinto_ciclo, (alumnos_hermanos[i], alumnos_hermanos[i+1]))
+        
+    if alumnos_hermanos[i][1] > alumnos_hermanos[i+1][1]:
+        
+        problem.addConstraint(hermanos_distinto_ciclo, (alumnos_hermanos[i+1], alumnos_hermanos[i]))
+        
     i += 2
 
 #Conflictivos.
@@ -699,7 +672,7 @@ for i in range(len(alumnos_bus)):
         
         for j in range(len(alumnos_bus)):
             
-            if i != j:
+            if i != j and alumnos_bus[j] not in alumnos_hermanos:
                 
                 problem.addConstraint(conflictivos, (alumnos_bus[i], alumnos_bus[j]))
 
