@@ -132,3 +132,53 @@ def transformGoalNode (node, lista_alumnos):
     return goalNode    
 
 #------------------------------------------------------------
+def AStarAlgorithm (cola_ordenada):
+    startNode = Node()
+    startNode = Node.state = []
+    startNode.gCost = startNode.hCost = startNode.fCost = 0
+    
+    openList = []
+    closedList = []
+    openList.append(startNode)
+    while len(openList) > 0:
+        expanded = openList.pop(0)
+        closedList.append(expanded)
+        if expanded in closedList:
+            continue
+        if expanded.state == []:
+            openList = nodeChildren(cola_ordenada, openList)
+        
+        openList = nodeChildren(openList, openList)
+        
+    longitud_estado = len(cola_ordenada)
+    expandedNodes = searchGoalNode(closedList, longitud_estado) 
+        
+    return expandedNodes, expandedNodes.fCost ,len(closedList)     
+        
+#------------------------------------------------------------
+
+#Sort de la lista de alumnos según el asiento que tengan
+
+orderListAlumnos(alumnos_bus)
+
+#Llamada al algoritmo A* y comienzo del contador de tiempo
+
+start_time = time.time()
+resultado, costeNodoMeta ,nodosExpandidos = AStarAlgorithm(alumnos_bus)
+end_time = time.time() + start_time
+#Creamos el diccionario con el resultado de la cola de alumnos
+
+colaAlumnos = transformGoalNode(resultado, alumnos_bus)
+
+#Creamos el archivo de salida
+
+data.replace(".txt", ".output")
+file_output = open(data, "w")
+file_output.seek(0)
+file_output.truncate()
+file_output.write("Tiempo total: " + str(end_time))
+file_output.write("Coste total: " + str(costeNodoMeta))
+file_output.write("Longitud del plan: " + str(4)) #TODO: Calcular la longitud del plan
+file_output.write("Nodos expandidos: " + str(nodosExpandidos))
+file_output.write(colaAlumnos)
+file_output.close()
