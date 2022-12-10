@@ -87,11 +87,153 @@ def calculateAllCost (node, cola_ordenada):
             
             if addedNode[i-1][1] == "X" and addedNode[i-1][2] == "R":
                 
-                gcost = 0
+                if addedNode[i-2][1] == "C":
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2
+                        
+                else:
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2
+                        
+                    else:
+                        
+                        gcost += 3
                 
-            else:
+            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "X":
                 
-                gcost += 1
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2*2
+                    
+                else:
+                    
+                    gcost += 1*2
+                    
+            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "R":
+                
+                if addedNode[i-2][1] == "C":
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2*2
+                        
+                else:
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2
+                    
+            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
+                
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2
+                    
+                else:
+                    
+                    gcost += 1
+                    
+            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
+                
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2
+                    
+                else:
+                    
+                    gcost += 1
+                    
+        if addedNode[i][1] == "C" and addedNode[i][2] == "X":
+            
+            if addedNode[i-1][1] == "X" and addedNode[i-1][2] == "R":
+                
+                if addedNode[i-2][1] == "C":
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2*2
+                        
+                else:
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2
+                
+            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "X":
+                
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2*2
+                    
+                else:
+                    
+                    gcost += 1*2
+                    
+            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "R":
+                
+                if addedNode[i-2][1] == "C":
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2*2*2
+                        
+                else:
+                    
+                    if addedNode[i+1][1] == "C":
+                        
+                        gcost += 3*2*2*2
+                        
+                    else:
+                        
+                        gcost += 3*2*2
+                    
+            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
+                
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2
+                    
+                else:
+                    
+                    gcost += 1
+                    
+            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
+                
+                if addedNode[i+1][1] == "C":
+                    
+                    gcost += 1*2
+                    
+                else:
+                    
+                    gcost += 1
             
     return gcost
 
@@ -138,11 +280,11 @@ def calculateGCost (node, parent, cola_ordenada):
         
     elif nodeParent == "XX" and addedNode == "XR":
         
-        gcost = parent.gCost + 3
+        gcost = parent.gCost + 0
         
     elif nodeParent == "XR" and addedNode == "XX":
         
-        gcost = parent.gCost + 0 
+        gcost = parent.gCost + 3 
     
     return gcost
         
