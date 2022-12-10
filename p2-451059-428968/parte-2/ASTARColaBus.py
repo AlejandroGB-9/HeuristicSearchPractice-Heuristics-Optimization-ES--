@@ -360,7 +360,6 @@ def calculateHCost (node, heuristic, cola_ordenada):
 
 def caculateNodeCosts(node, parent, heuristic, cola_ordenada):
     
-    node.parent = parent
     node.gCost = calculateGCost(node, parent, cola_ordenada)
     node.hCost, goal = calculateHCost(node, heuristic, cola_ordenada)
     node.fCost = node.gCost + node.hCost
@@ -524,9 +523,11 @@ def AStarAlgorithm (cola_ordenada, heuristic):
     
     #Una vez alcanzado el nodo meta, se devuelve el nodo meta, su coste y el número de nodos expandidos.
         
-    expandedNodeGoal = searchGoalNode(openList, lenCola) 
+    expandedNodeGoal = searchGoalNode(openList, lenCola)
+    
+    expandedNodes = len(closedList) + len(openList) 
         
-    return expandedNodeGoal, expandedNodeGoal.fCost ,len(closedList)     
+    return expandedNodeGoal, expandedNodeGoal.fCost ,expandedNodes     
         
 #------------------------------------------------------------
 
