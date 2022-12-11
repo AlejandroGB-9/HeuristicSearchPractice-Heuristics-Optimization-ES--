@@ -86,9 +86,11 @@ count_herm_movred_c2 = 0
 
 def buscar_hermano(a):
     #Función para buscar un hermano.
-    for i in range (0,len(alumnos_hermanos)):
-        if a == i[0]:
-            return i
+    for i in range (len(alumnos_bus)):
+        
+        if alumnos_bus[i][0] == a:
+
+            return alumnos_bus[i]
 
 #------------------------------------------------------------
 
@@ -101,15 +103,15 @@ def no_mov_redc_ciclo1():
     
     for i in range(0, len(alumnos_comunes_ciclo1)):
         
-        problem.addVariable(alumnos_comunes_ciclo1[i], dominio_no_mov_red_ciclo1)
+        problem.addVariable(tuple(alumnos_comunes_ciclo1[i]), dominio_no_mov_red_ciclo1)
         
     for i in range(0, len(alumnos_comunes_ciclo2)):
         
-        problem.addVariable(alumnos_comunes_ciclo2[i], dominio_ciclo2)  
+        problem.addVariable(tuple(alumnos_comunes_ciclo2[i]), dominio_ciclo2)  
         
     for i in range(0, len(alumnos_mov_reducidos_ciclo2)):
         
-        problem.addVariable(alumnos_mov_reducidos_ciclo2[i], dominio_mov_red_ciclo2)
+        problem.addVariable(tuple(alumnos_mov_reducidos_ciclo2[i]), dominio_mov_red_ciclo2)
     
     #Dominio para los hermanos
     
@@ -122,8 +124,8 @@ def no_mov_redc_ciclo1():
         
         if (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_no_mov_red_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_no_mov_red_ciclo1)
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
@@ -131,31 +133,31 @@ def no_mov_redc_ciclo1():
             
             if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
             
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo2)
                 
             elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
             
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo2)
                 
             elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
             
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo2)
                 
             else:
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo2)
          
         #Hermanos con distinto ciclo.
         #Se asigna el dominio del menor que corresponde al ciclo 1 a ambos.
             
         elif alumnos_hermanos[i][1] != alumnos_hermanos[i+1][1]:
             
-            problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
-            problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
+            problem.addVariable(tuple(alumnos_hermanos[i][0]), dominio_hermanos_distinto_curso_no_mov_red_c1)
+            problem.addVariable(tuple(alumnos_hermanos[i+1][0]), dominio_hermanos_distinto_curso_no_mov_red_c1)
         
         i+=2  
       
@@ -168,15 +170,15 @@ def no_mov_redc_ciclo2():
     
     for i in range(0, len(alumnos_comunes_ciclo2)):
         
-        problem.addVariable(alumnos_comunes_ciclo2[i], dominio_no_mov_red_ciclo2)
+        problem.addVariable(tuple(alumnos_comunes_ciclo2[i]), dominio_no_mov_red_ciclo2)
         
     for i in range(0, len(alumnos_comunes_ciclo1)):
         
-        problem.addVariable(alumnos_comunes_ciclo1[i], dominio_ciclo1)  
+        problem.addVariable(tuple(alumnos_comunes_ciclo1[i]), dominio_ciclo1)  
         
     for i in range(0, len(alumnos_mov_reducidos_ciclo1)):
         
-        problem.addVariable(alumnos_mov_reducidos_ciclo1[i], dominio_mov_red_ciclo1)
+        problem.addVariable(tuple(alumnos_mov_reducidos_ciclo1[i]), dominio_mov_red_ciclo1)
         
     #Dominio para los hermanos    
         
@@ -187,8 +189,8 @@ def no_mov_redc_ciclo2():
         
         if (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_no_mov_red_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_no_mov_red_ciclo2)
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
@@ -196,31 +198,31 @@ def no_mov_redc_ciclo2():
             
             if alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] != "R":
             
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo1)
                 
             elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
             
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo1)
                 
             elif alumnos_hermanos[i][2] == "R" and alumnos_hermanos[i+1][2] == "R":
             
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo1)
                 
             else:
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo1)
          
         #Hermanos con distinto ciclo.
         #Se asigna el dominio del menor que corresponde al ciclo 1 a ambos.
             
         elif alumnos_hermanos[i][1] != alumnos_hermanos[i+1][1]:
             
-            problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso)
-            problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso)
+            problem.addVariable(tuple(alumnos_hermanos[i][0]), dominio_hermanos_distinto_curso)
+            problem.addVariable(tuple(alumnos_hermanos[i+1][0]), dominio_hermanos_distinto_curso)
         
         i+=2  
        
@@ -231,11 +233,11 @@ def no_mov_redc():
     
     for i in range(0, len(alumnos_comunes_ciclo1)):
         
-        problem.addVariable(alumnos_comunes_ciclo1[i], dominio_no_mov_red_ciclo1)
+        problem.addVariable(tuple(alumnos_comunes_ciclo1[i]), dominio_no_mov_red_ciclo1)
         
     for i in range(0, len(alumnos_comunes_ciclo2)):
         
-        problem.addVariable(alumnos_comunes_ciclo2[i], dominio_no_mov_red_ciclo2)
+        problem.addVariable(tuple(alumnos_comunes_ciclo2[i]), dominio_no_mov_red_ciclo2)
         
     #Dominio para los hermanos.
         
@@ -246,20 +248,20 @@ def no_mov_redc():
         
         if alumnos_hermanos[i][1] != alumnos_hermanos[i+1][1]:
             
-            problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
-            problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso_no_mov_red_c1)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_hermanos_distinto_curso_no_mov_red_c1)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_hermanos_distinto_curso_no_mov_red_c1)
             
         #Hermanos con mismo ciclo.
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_no_mov_red_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_no_mov_red_ciclo1)
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_no_mov_red_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_no_mov_red_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_no_mov_red_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_no_mov_red_ciclo2)
         
         i+=2  
 
@@ -270,21 +272,21 @@ def asign_domain_alumnos():
     
     for i in range(0, len(alumnos_comunes_ciclo1)):
         
-        problem.addVariable(alumnos_comunes_ciclo1[i], dominio_ciclo1)
+        problem.addVariable(tuple(alumnos_comunes_ciclo1[i]), dominio_ciclo1)
         
     for i in range(0, len(alumnos_comunes_ciclo2)):
         
-        problem.addVariable(alumnos_comunes_ciclo2[i], dominio_ciclo2)
+        problem.addVariable(tuple(alumnos_comunes_ciclo2[i]), dominio_ciclo2)
         
     #Dominio para los alumnos con movilidad reducida.
           
     for i in range(0, len(alumnos_mov_reducidos_ciclo1)):
         
-        problem.addVariable(alumnos_mov_reducidos_ciclo1[i], dominio_mov_red_ciclo1) 
+        problem.addVariable(tuple(alumnos_mov_reducidos_ciclo1[i]), dominio_mov_red_ciclo1) 
         
     for i in range(0, len(alumnos_mov_reducidos_ciclo2)):
         
-        problem.addVariable(alumnos_mov_reducidos_ciclo2[i], dominio_mov_red_ciclo2)
+        problem.addVariable(tuple(alumnos_mov_reducidos_ciclo2[i]), dominio_mov_red_ciclo2)
         
     #Dominio para los hermanos.
         
@@ -297,25 +299,25 @@ def asign_domain_alumnos():
             
             if alumnos_hermanos[i][1] == "1":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo1)
                 
             elif alumnos_hermanos[i][1] == "2":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo2)
                 
         elif alumnos_hermanos[i+1][2] == "R" and alumnos_hermanos[i][2] != "R":
             
             if alumnos_hermanos[i+1][1] == "1":
                 
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo1)
                 
             elif alumnos_hermanos[i+1][1] == "2":
                 
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo2)
                 
         #Caso para los dos hermanos con movilidad reducida.
                 
@@ -323,42 +325,42 @@ def asign_domain_alumnos():
             
             if alumnos_hermanos[i][1] == "1" and alumnos_hermanos[i+1][1] == "1":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo1)
                 
             elif alumnos_hermanos[i][1] == "2" and alumnos_hermanos[i+1][1] == "2":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo2)
                 
             elif alumnos_hermanos[i][1] == "1" and alumnos_hermanos[i+1][1] == "2":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo1)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo2)
                 
             elif alumnos_hermanos[i][1] == "2" and alumnos_hermanos[i+1][1] == "1":
                 
-                problem.addVariable(alumnos_hermanos[i], dominio_mov_red_ciclo2)
-                problem.addVariable(alumnos_hermanos[i+1], dominio_mov_red_ciclo1)
+                problem.addVariable(tuple(alumnos_hermanos[i]), dominio_mov_red_ciclo2)
+                problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_mov_red_ciclo1)
                 
         #Hermanos con distinto ciclo.
         #Se asigna el dominio del menor que corresponde al ciclo 1 a ambos.
                 
         elif alumnos_hermanos[i][1] != alumnos_hermanos[i+1][1]:
             
-            problem.addVariable(alumnos_hermanos[i][0], dominio_hermanos_distinto_curso)
-            problem.addVariable(alumnos_hermanos[i+1][0], dominio_hermanos_distinto_curso)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_hermanos_distinto_curso)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_hermanos_distinto_curso)
             
         #Hermanos con mismo ciclo.
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "1":
             
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo1)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo1)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo1)
             
         elif (alumnos_hermanos[i][1] and alumnos_hermanos[i+1][1]) == "2":
-            problem.addVariable(alumnos_hermanos[i], dominio_ciclo2)
-            problem.addVariable(alumnos_hermanos[i+1], dominio_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i]), dominio_ciclo2)
+            problem.addVariable(tuple(alumnos_hermanos[i+1]), dominio_ciclo2)
         
         i+=2  
 
@@ -373,6 +375,7 @@ for i in range(0, len(alumnos_bus)):
     if int(alumnos_bus[i][4]) != 0:
         
         hermano = buscar_hermano(alumnos_bus[i][4])
+        
         if (alumnos_bus[i] and hermano) not in alumnos_hermanos:
             
             alumnos_hermanos.append(alumnos_bus[i])
@@ -414,17 +417,13 @@ for i in range(0, len(alumnos_bus)):
 
 if len(alumnos_hermanos) != 0:
     
-    for i in range(0,len(alumnos_hermanos)):
+    for i in range(len(alumnos_hermanos)):
         
-        if alumnos_hermanos[i][1] == "1":
-            
-            if alumnos_hermanos[i][2] == "R":
+        if alumnos_hermanos[i][1] == "1" and alumnos_hermanos[i][2] == "R":
                 
-                count_herm_movred_c1 += 1
+            count_herm_movred_c1 += 1
                 
-        elif alumnos_hermanos[i][1] == "2":
-            
-            if alumnos_hermanos[i][2] == "R":
+        elif alumnos_hermanos[i][1] == "2" and alumnos_hermanos[i][2] == "R":
                 
                 count_herm_movred_c2 += 1     
 
@@ -714,10 +713,10 @@ for i in range(len(alumnos_bus)):
             
 data.replace(".txt", ".output")
 file_output = open(data, "w")
-file_output.seek(0)
-file_output.truncate()
-file_output.write("Número de soluciones: " + str(n_soluciones))
-file_output.write(text_solution)
+#file_output.seek(0)
+#file_output.truncate()
+file_output.write("Número de soluciones: " + str(n_soluciones) + "\n")
+file_output.write(str(text_solution))
 file_output.close()
 
 
