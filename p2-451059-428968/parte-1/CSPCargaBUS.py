@@ -29,6 +29,8 @@ from constraint import *
 import csv
 import random
 import sys
+import os.path
+import pathlib
 
 #Creación del problema y lectura del fichero de entrada.
 
@@ -711,10 +713,15 @@ for i in range(len(alumnos_bus)):
    
 #Se crea el archivo de salida dada los solución escogida.   
             
-data.replace(".txt", ".output")
-file_output = open(data, "w")
-#file_output.seek(0)
-#file_output.truncate()
+output_file = ""
+for i in range(len(data)):
+    if data[i] == ".":
+        break
+    output_file += data[i]
+output_file += ".output"
+path = pathlib.Path(__file__).parent.resolve()
+output_file = os.path.join(path, output_file)
+file_output = open(output_file, "w")
 file_output.write("Número de soluciones: " + str(n_soluciones) + "\n")
 file_output.write(str(text_solution))
 file_output.close()
