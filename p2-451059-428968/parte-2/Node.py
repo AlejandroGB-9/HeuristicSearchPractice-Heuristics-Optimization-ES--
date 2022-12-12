@@ -5,4 +5,4 @@ class Node():
         self.parent = parent
         self.gCost = gCost
         self.hCost = hCost
-        self.fCost = 0
+        self.fCost = self.gCost + self.hCost

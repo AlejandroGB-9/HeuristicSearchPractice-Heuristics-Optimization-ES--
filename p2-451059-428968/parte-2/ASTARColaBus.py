@@ -266,6 +266,7 @@ def calculateGCost (node, parent, cola_ordenada):
     
     addedNode = node.state
     countConflicts = 0
+    gcost = 0
     
     #Se calcula cuantos conflictos hay en la cola.
     
@@ -339,6 +340,8 @@ def calculateHCost (node, heuristic, cola_ordenada):
     
     #Si la heurística es 1, esta es cuantos asientos siguen estando libres hasta alcanzar la última posición de la cola.	
     
+    hcost = 0
+    
     if heuristic == 1:
         
         #Se calcula el coste heurístico con la longitud que tenga la cola inicial de alumnos - la longitud del nodo.
@@ -362,7 +365,6 @@ def caculateNodeCosts(node, parent, heuristic, cola_ordenada):
     
     node.gCost = calculateGCost(node, parent, cola_ordenada)
     node.hCost, goal = calculateHCost(node, heuristic, cola_ordenada)
-    node.fCost = node.gCost + node.hCost
     
     #Se devuelve el nodo hijo con sus costes y si se ha alcanzado el nodo meta.
     
@@ -408,6 +410,8 @@ def orderOpenList (openList):
 
 def nodeChildren(lista_tomar, lista_poner, expandedNode, heuristic):
     
+    goal = False
+    
     for i in range(len(lista_tomar)):
         
         expansionNode = expandedNode.state
@@ -417,34 +421,41 @@ def nodeChildren(lista_tomar, lista_poner, expandedNode, heuristic):
         
         if lista_tomar[i][0] not in expansionNode:
             
-            addedAlumno = lista_tomar[i][0]
-            checkLast = expansionNode[-1]
-            
-            #Se comprueba que los hijos cumplen las normas.
-            #Si el alumno anterior es de movilidad reducida y el alumno añadido es de movilidad reducida no se añade.
-            
-            if checkLast[2] == "R" and addedAlumno[2] == "R":
-                
-                pass
-            
-            #Si el añadido es de movilidad reducida y el nodo expandido tiene la longitud de la cola inicial - 1, no se añade.
-            
-            elif addedAlumno[2] == "R" and (len(expansionNode) == (len(lista_tomar) - 1)):
-                
-                pass
-            
-            else:
-                
-                #En caso contrario, se añade el alumno al nodo expandido y se crea el nodo hijo.
-                #Se añade como un nodo con su padre y se calculan sus costes.
-                #Finalmente se añade a la openList.
+            if len(expansionNode) == 0:
                 
                 expansionNode.append(lista_tomar[i][0])
-                node = Node()
-                node.state = expansionNode
-                node.parent = expandedNode
+                node = Node(expansionNode, expandedNode, 0, 0)
                 node, goal = caculateNodeCosts(node, expandedNode, heuristic, lista_tomar)
                 lista_poner.append(node)
+                
+            else:
+                
+                addedAlumno = lista_tomar[i][0]
+                checkLast = expansionNode[-1]
+                
+                #Se comprueba que los hijos cumplen las normas.
+                #Si el alumno anterior es de movilidad reducida y el alumno añadido es de movilidad reducida no se añade.
+                
+                if checkLast[2] == "R" and addedAlumno[2] == "R":
+                    
+                    pass
+                
+                #Si el añadido es de movilidad reducida y el nodo expandido tiene la longitud de la cola inicial - 1, no se añade.
+                
+                elif addedAlumno[2] == "R" and (len(expansionNode) == (len(lista_tomar) - 1)):
+                    
+                    pass
+                
+                else:
+                    
+                    #En caso contrario, se añade el alumno al nodo expandido y se crea el nodo hijo.
+                    #Se añade como un nodo con su padre y se calculan sus costes.
+                    #Finalmente se añade a la openList.
+                    
+                    expansionNode.append(lista_tomar[i][0])
+                    node = Node(expansionNode, expandedNode, 0, 0)
+                    node, goal = caculateNodeCosts(node, expandedNode, heuristic, lista_tomar)
+                    lista_poner.append(node)
     
     #Se ordena y se devuelve la openList con los hijos añadidos y si se ha llegado al nodo meta.
         
@@ -495,9 +506,8 @@ def AStarAlgorithm (cola_ordenada, heuristic):
     
     lenCola = len(cola_ordenada)
     
-    startNode = Node()
-    startNode = Node.state = []
-    startNode.gCost = startNode.hCost = startNode.fCost = 0
+    startNode = Node( [], None, 0, 0 )
+
     
     openList = []
     closedList = []
@@ -519,12 +529,11 @@ def AStarAlgorithm (cola_ordenada, heuristic):
         else:
             
             closedList.append(expanded)
-            openList, goalReached = nodeChildren(cola_ordenada, openList, expanded, heuristic)
+            openList, goalReached = nodeChildren(cola_ordenada, openList, expanded, heuristic)    
     
     #Una vez alcanzado el nodo meta, se devuelve el nodo meta, su coste y el número de nodos expandidos.
         
     expandedNodeGoal = searchGoalNode(openList, lenCola)
-    
     expandedNodes = len(closedList) + len(openList) 
         
     return expandedNodeGoal, expandedNodeGoal.fCost ,expandedNodes     
