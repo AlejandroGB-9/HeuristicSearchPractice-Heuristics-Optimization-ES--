@@ -73,6 +73,7 @@ def asign_domain_alumnos():
     
     #Esta parte asigna los dominios a los alumnos del autobus que no tengan hermanos.
     #Esto es así porque los alumnos con hermanos se asignan de una manera distinta.
+    
     for i in alumnos_bus:
         
         if i in alumnos_hermanos:
@@ -82,6 +83,7 @@ def asign_domain_alumnos():
         else:
             
             #Se comprube a que ciclo pertenece el alumno y si es de movilidad reducida.
+            
             if i[1] == "1":
                     
                 if i[3] == "R":
@@ -116,33 +118,9 @@ def asign_domain_alumnos():
             #En otras palabras, se comprueba si son de movilidad reducida y si pertenecen al mismo ciclo o no, ambos casos resultan en distintos dominios.
             #Se debe entender que i corresponde al alumno actual y i+1 al hermano.
             
-            #Mismo ciclo 1.
+            #Mismo ciclo 1 o distinto ciclo.
             
-            if i[1] == "1" and i+1[1] == "1":
-                
-                if i[3] == "R" and i+1[3] == "R":
-                    
-                    problem.addVariable(i, dominio_mov_red_ciclo1)
-                    problem.addVariable(i+1, dominio_mov_red_ciclo1)
-                    
-                elif i[3] == "R" and i+1[3] != "R":
-                    
-                    problem.addVariable(i, dominio_mov_red_ciclo1)
-                    problem.addVariable(i+1, dominio_ciclo1)
-                    
-                elif i[3] != "R" and i+1[3] == "R":
-                    
-                    problem.addVariable(i, dominio_ciclo1)
-                    problem.addVariable(i+1, dominio_mov_red_ciclo1)
-                    
-                else:
-                    
-                    problem.addVariable(i, dominio_ciclo1) 
-                    problem.addVariable(i+1, dominio_ciclo1)  
-             
-             #Distinto ciclo.
-                    
-            elif i[1] != i+1[1]:
+            if (i[1] == "1" and i+1[1] == "1") or (i[1] != i+1[1]):
                 
                 if i[3] == "R" and i+1[3] == "R":
                     
@@ -233,7 +211,7 @@ for i in alumnos_bus:
 
 #------------------------------------------------------------
 print(alumnos_hermanos)
-#Se añaden las variables al problema según el caso del problema.
+#Se añaden las variables al problema.
     
 asign_domain_alumnos()
 
@@ -349,7 +327,7 @@ for i in alumnos_bus:
         
         #Si sólo es de movilidad reducida el alumno.
                      
-        elif i != j and (j in alumnos_mov_reducida or j in alumnos_mov_reducida_conflictivos) and (i in alumnos_mov_reducida_conflictivos or i in alumnos_mov_reducida):
+        elif i != j and (j in alumnos_mov_reducida or j in alumnos_mov_reducida_conflictivos or alumnos_comunes) and (i in alumnos_mov_reducida_conflictivos or i in alumnos_mov_reducida):
             
             problem.addConstraint(mov_reducida, (i,j))
         
@@ -395,6 +373,12 @@ for i in alumnos_bus:
                     elif i[3] == "R" and j[3] == "R":
                         
                         problem.addConstraint(mov_reducida, (i,j))
+                        problem.addConstraint(hermanos_conflictivos, (i,j))
+                        
+                    elif i[3] == "R" or j[3] == "R":
+                        
+                        problem.addConstraint(mov_reducida, (i,j))
+                        problem.addConstraint(hermanos_conflictivos, (i,j))
                 
                 #Si uno es conflictivo y el otro no o ninguno es conflictivo.
                             
@@ -419,6 +403,10 @@ for i in alumnos_bus:
                     elif i[3] == "R" and j[3] == "R":
                         
                         problem.addConstraint(mov_reducida, (i,j))
+                        
+                    elif i[3] == "R" or j[3] == "R":
+                        
+                        problem.addConstraint(mov_reducida, (i,j))
             
             #Si los alumnos no son hermanos. Se comprueban los casos posibles.
                         
@@ -428,7 +416,7 @@ for i in alumnos_bus:
                 
                 if i[2] == "C" and i[3] != "R":
                     
-                    if j[2] == "C" or j[3] == "R":
+                    if j[2] == "C" or j[3] == "R" or (j[2] == "C" and j[3] == "R"):
                         
                         problem.addConstraint(conflictivos, (i,j))
                 
@@ -440,14 +428,10 @@ for i in alumnos_bus:
                         
                         problem.addConstraint(conflictivos, (i,j))
                         
-                    elif j[2] == "C" and j[3] == "R":
+                    elif (j[2] == "C" and j[3] == "R") or (j[2] != "C" and j[3] == "R"):
                         
                         problem.addConstraint(mov_reducida, (i,j))
                         problem.addConstraint(conflictivos, (i,j))
-                        
-                    elif j[2] != "C" and j[3] == "R":
-                        
-                        problem.addConstraint(mov_reducida, (i,j))
                 
                 #Alumno seleccionado de movilidad reducida.
                         
