@@ -11,7 +11,7 @@ import sys
 #Lectura del fichero de entrada.
 #El fichero de entrada se toma como argumento de la terminal al ejecutar el programa por esta.
 
-data = sys.argv[1]
+data = "ggg.output"
 data.replace(".txt", ".csv")
 
 #Se lee el fichero de entrada y se almacena en una lista de listas.
@@ -67,7 +67,7 @@ def orderListAlumnos (lista):
     temp = 0
     for i in range(len(lista)):
         
-        temp = lista[i][1]
+        temp = int(lista[i][1])
         lista[i][1] = lista[i][0]
         lista[i][0] = temp
         
@@ -76,7 +76,7 @@ def orderListAlumnos (lista):
     for i in range(len(lista)):
         
         temp = lista[i][1]
-        lista[i][1] = lista[i][0]
+        lista[i][1] = str(lista[i][0])
         lista[i][0] = temp
         
     return lista
@@ -90,7 +90,7 @@ def orderListAlumnos (lista):
 #Un alumno conflictivo cuesta 1 pero duplica el coste de los que se encuentren delante y atrás de él.
 #TODO: Se tiene que implementar el último punto de los conflictivos, con el que se necesita la cola_ordenada.
 
-def calculateAllCost (node, cola_ordenada):
+def calculateAllCost (node, cola_ordenada, l_nodos):
     
     gcost = 0
     addedNode = node.state
@@ -262,17 +262,17 @@ def calculateAllCost (node, cola_ordenada):
 
 #Función para calcular el coste g de un nodo.
 
-def calculateGCost (node, parent, cola_ordenada):
+def calculateGCost (node, cola_ordenada, l_nodos, parentcost):
     
-    addedNode = node.state
+    addedNode = node
     countConflicts = 0
     gcost = 0
     
     #Se calcula cuantos conflictos hay en la cola.
     
-    for i in range(len(addedNode)):
+    for i in addedNode:
         
-        if addedNode[i][1] == "C":
+        if i[1] == "C":
             
             countConflicts += 1
             
@@ -282,10 +282,15 @@ def calculateGCost (node, parent, cola_ordenada):
         return calculateAllCost(node, cola_ordenada)
     
     #En caso contrario, se calcula el coste g de la cola de una forma más sencilla.
-    
     #Si el nodo añadido es el primer alumno que se introduce en la cola.
     
-    if len(parent.state) == 0:
+    for i in l_nodos:
+        
+        if i.gCost == parentcost:
+            
+            parent = i.parent
+            
+    if parent == None or parent == []:
         
         addedNode = addedNode[-1]
         addedNode = addedNode[2]
@@ -306,26 +311,27 @@ def calculateGCost (node, parent, cola_ordenada):
     #En el caso de que tenga un padre.
     #Se mira que alumno era antes de añadido por si se da el caso de ser de movilidad reducida.
     #Según el caso se calcula el coste g en base a los coste mencionados anteriormente y el coste del padre.
+    else:  
         
-    nodeParent = parent.state
-    nodeParent = nodeParent[-1]
-    nodeParent = str(nodeParent[1] + nodeParent[2])
-    
-    addedNode = addedNode[-1]
-    addedNode = str(addedNode[1] + addedNode[2])
-    
-    if nodeParent == "XX" and addedNode == "XX":
+        nodeParent = parent
+        nodeParent = nodeParent[-1]
+        nodeParent = str(nodeParent[1] + nodeParent[2])
         
-        gcost = parent.gCost + 1
+        addedNode = addedNode[-1]
+        addedNode = str(addedNode[1] + addedNode[2])
         
-    elif nodeParent == "XX" and addedNode == "XR":
+        if nodeParent == "XX" and addedNode == "XX":
+            
+            gcost = parentcost + 1
+            
+        elif nodeParent == "XX" and addedNode == "XR":
+            
+            gcost = parentcost + 0
+            
+        elif nodeParent == "XR" and addedNode == "XX":
+            
+            gcost = parentcost + 3 
         
-        gcost = parent.gCost + 0
-        
-    elif nodeParent == "XR" and addedNode == "XX":
-        
-        gcost = parent.gCost + 3 
-    
     #Se devuelve el coste g.
     
     return gcost
@@ -345,7 +351,7 @@ def calculateHCost (node, heuristic, cola_ordenada):
     if heuristic == 1:
         
         #Se calcula el coste heurístico con la longitud que tenga la cola inicial de alumnos - la longitud del nodo.
-        hcost = len(cola_ordenada) - len(node.state)
+        hcost = len(cola_ordenada) - len(node)
         
         #En caso de ser el coste cero, se ha alcanzado el objetivo.
         if hcost == 0:
@@ -361,14 +367,14 @@ def calculateHCost (node, heuristic, cola_ordenada):
 #Calcular el valor del nodo expandido.
 #Es necesario el uso de funciones externas para los costes g y h, estas funciones son las anteriores.
 
-def caculateNodeCosts(node, parent, heuristic, cola_ordenada):
+def caculateNodeCosts(node, heuristic, parentcost ,cola_ordenada, l_nodos):
     
-    node.gCost = calculateGCost(node, parent, cola_ordenada)
-    node.hCost, goal = calculateHCost(node, heuristic, cola_ordenada)
-    
-    #Se devuelve el nodo hijo con sus costes y si se ha alcanzado el nodo meta.
-    
-    return node, goal
+    gCost = calculateGCost(node, cola_ordenada, l_nodos, parentcost)
+    hCost, goal = calculateHCost(node, heuristic, cola_ordenada)
+
+    #Se devulve si el es el estado meta o no.
+
+    return gCost, hCost, goal
 
 #------------------------------------------------------------
 
@@ -376,30 +382,30 @@ def caculateNodeCosts(node, parent, heuristic, cola_ordenada):
 #Es decir, una función que ordena la openList una vez añadido los hijos a esta lista.
 #Se ordenan los hijos segúm su coste de menor a mayor.
 
-def orderOpenList (openList):
+def orderOpenList (openList, l_nodos):
     
     #Se crea una lista con los costes f de los nodos de la openList y se ordena.
     
     costList = []
-    for i in range(len(openList)):
+    for i in l_nodos:
         
-        costList.append(openList[i].fCost)
+        if i.state in openList:
+            
+            nodeCosts = [i.state, i.fCost]
+            costList.append(nodeCosts)
+            
+        else:
+            
+            pass
     
-    costList.sort()
+    orderListAlumnos(costList)
     newOpenList = []
     
     #Según los costes se colocan los nodos según su coste f.
     
-    while len(costList) > 0:
+    for i in costList:
         
-        for i in range(len(openList)):
-            
-            if openList[i].fCost == costList[0]:
-                
-                newOpenList.append(openList[i])
-                costList.pop(0)
-                
-                break
+        newOpenList.append(i[0])
 
     #Se devuelve la openList ordenada.       
                 
@@ -408,29 +414,49 @@ def orderOpenList (openList):
 
 #Creación de hijos de un nodo
 
-def nodeChildren(lista_tomar, lista_poner, expandedNode, heuristic):
+def nodeChildren(lista_tomar, lista_poner, l_nodos, expandedNode, heuristic):
     
     goal = False
     
-    for i in range(len(lista_tomar)):
+    for i in l_nodos:
         
-        expansionNode = expandedNode.state
+        if i.state == expandedNode:
+            
+            nodeParentcost = i.gCost
+    
+    # if len(expandedNode) == 0:
+        
+    #     toExpandNode = []
+    
+    # else:          
+        
+    #     for i in expandedNode:
+            
+    #         toExpandNode.append(i)
+    
+    for i in lista_tomar:
+        
+        expansionNode = expandedNode.copy()
         
         #Se añaden los alumnos al nodo expandido que no se encuentren en el nodo expandido.
         #Así se genera los nodos hijos 
         
-        if lista_tomar[i][0] not in expansionNode:
+        if i[0] not in expansionNode:
             
             if len(expansionNode) == 0:
                 
-                expansionNode.append(lista_tomar[i][0])
-                node = Node(expansionNode, expandedNode, 0, 0)
-                node, goal = caculateNodeCosts(node, expandedNode, heuristic, lista_tomar)
-                lista_poner.append(node)
+                expansionNode.append(i[0])
+                gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost ,lista_tomar, l_nodos)
+                node = Node(expansionNode, expandedNode, gcost, hcost)
+                l_nodos.append(node)
+                print(node.state)
+                lista_poner.append(node.state)
+                print(lista_poner)
+
                 
             else:
                 
-                addedAlumno = lista_tomar[i][0]
+                addedAlumno = i[0]
                 checkLast = expansionNode[-1]
                 
                 #Se comprueba que los hijos cumplen las normas.
@@ -452,14 +478,17 @@ def nodeChildren(lista_tomar, lista_poner, expandedNode, heuristic):
                     #Se añade como un nodo con su padre y se calculan sus costes.
                     #Finalmente se añade a la openList.
                     
-                    expansionNode.append(lista_tomar[i][0])
-                    node = Node(expansionNode, expandedNode, 0, 0)
-                    node, goal = caculateNodeCosts(node, expandedNode, heuristic, lista_tomar)
-                    lista_poner.append(node)
+                    expansionNode.append(i[0])
+                    gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost ,lista_tomar, l_nodos)
+                    node = Node(expansionNode, expandedNode, gcost, hcost)
+                    l_nodos.append(node)
+                    print(node.state)
+                    lista_poner.append(node.state)
+                    print(lista_poner)
     
     #Se ordena y se devuelve la openList con los hijos añadidos y si se ha llegado al nodo meta.
         
-    lista_poner = orderOpenList(lista_poner)
+    lista_poner = orderOpenList(lista_poner, l_nodos)
         
     return lista_poner, goal
         
@@ -469,30 +498,42 @@ def nodeChildren(lista_tomar, lista_poner, expandedNode, heuristic):
 #Se busca el nodo objetivo en la lista de nodos por expandir al ser la openList.
 #Para ello el nodo objetivo debe tener la longitud de la cola inicial.
 
-def searchGoalNode (lista, longitud_estado):
+def searchGoalNode (lista_nodos, longitud_estado):
     
-    for i in range(len(lista)):
+    nodos_meta = []
+    
+    for i in lista_nodos:
         
-        if len(lista[i].state) == longitud_estado:
+        if len(i.state) == longitud_estado:
             
-            return lista[i]
+            nodos_meta.append([i.state, i.fCost])
+        
+        else:
             
+            pass
+            
+    orderListAlumnos(nodos_meta)
+    
+    print (nodos_meta)
+    
+    return nodos_meta[0][0], nodos_meta[0][1]      
 
 #------------------------------------------------------------
 
 #Transformación del estado meta en diccionario como resultado
 #Se transforma el estado meta en un diccionario con el nombre del alumno y su posición en la cola.
     
-def transformGoalNode (node, lista_alumnos): 
+def transformGoalNode (result, lista_alumnos): 
        
     goalNode = {}
-    for i in range(len(node.state)):
+    for i in result:
         
-        for j in range(len(lista_alumnos)):
+        for j in lista_alumnos:
             
-            if node.state[i] == lista_alumnos[j][0]:
+            if i == j[0]:
                 
-                goalNode[str(node.state[i])] = lista_alumnos[j][1]
+                goalNode[i] = j[1]
+                break
         
     return goalNode    
 
@@ -505,14 +546,15 @@ def transformGoalNode (node, lista_alumnos):
 def AStarAlgorithm (cola_ordenada, heuristic):
     
     lenCola = len(cola_ordenada)
+    lista_nodos = []
     
     startNode = Node( [], None, 0, 0 )
+    lista_nodos.append(startNode)
 
-    
     openList = []
     closedList = []
     goalReached = False
-    openList.append(startNode)
+    openList.append(startNode.state)
     
     #Se segurirá expandiendo nodos mientras la openList no esté vacía y no se haya llegado al nodo meta.
     
@@ -529,26 +571,27 @@ def AStarAlgorithm (cola_ordenada, heuristic):
         else:
             
             closedList.append(expanded)
-            openList, goalReached = nodeChildren(cola_ordenada, openList, expanded, heuristic)    
+            openList, goalReached = nodeChildren(cola_ordenada,  openList, lista_nodos, expanded, heuristic)    
     
     #Una vez alcanzado el nodo meta, se devuelve el nodo meta, su coste y el número de nodos expandidos.
         
-    expandedNodeGoal = searchGoalNode(openList, lenCola)
+    expandedNodeGoal, nodeTotalCost = searchGoalNode(lista_nodos, lenCola)
     expandedNodes = len(closedList) + len(openList) 
         
-    return expandedNodeGoal, expandedNodeGoal.fCost ,expandedNodes     
+    return expandedNodeGoal, nodeTotalCost ,expandedNodes     
         
 #------------------------------------------------------------
 
 #Sort de la lista de alumnos según el asiento que tengan
 
 orderListAlumnos(alumnos_bus)
+print(alumnos_bus)
 
 #Llamada al algoritmo A* y comienzo del contador de tiempo
 
 start_time = time.time()
 resultado, costeNodoMeta ,nodosExpandidos = AStarAlgorithm(alumnos_bus, 1)
-end_time = time.time() + start_time
+end_time = time.time() - start_time
 #Creamos el diccionario con el resultado de la cola de alumnos
 
 colaAlumnos = transformGoalNode(resultado, alumnos_bus)
@@ -559,9 +602,9 @@ data.replace(".txt", ".output")
 file_output = open(data, "w")
 file_output.seek(0)
 file_output.truncate()
-file_output.write("Tiempo total: " + str(end_time))
-file_output.write("Coste total: " + str(costeNodoMeta))
-file_output.write("Longitud del plan: " + str(4)) #TODO: Calcular la longitud del plan
-file_output.write("Nodos expandidos: " + str(nodosExpandidos))
-file_output.write(colaAlumnos)
+file_output.write("Tiempo total: " + str(end_time) + "\n")
+file_output.write("Coste total: " + str(costeNodoMeta) + "\n")
+file_output.write("Longitud del plan: " + str(4) + "\n") #TODO: Calcular la longitud del plan
+file_output.write("Nodos expandidos: " + str(nodosExpandidos) + "\n")
+file_output.write(str(colaAlumnos))
 file_output.close()
