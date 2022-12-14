@@ -282,6 +282,8 @@ todos_mov_reducida = alumnos_mov_reducida + alumnos_mov_reducida_conflictivos
      
 #------------------------------------------------------------
 
+#Para una mayor facilidad en las constraints se añadiran los alumnos que son hermanos a las listas según sus características.
+
 for i in alumnos_hermanos:
     
     if i[3] == "R":
@@ -298,6 +300,9 @@ for i in alumnos_hermanos:
     elif i[2] == "C":
         
         todos_conflictivos.append(i)
+
+#Una vez se añadan se comprueba los alumnos conflictivos con los alumnos conflictivos.
+#Si dos alumnos son hermanos en este caso se ignora y se pasa al siguiente.
 
 for i in todos_conflictivos:
     
@@ -316,24 +321,24 @@ for i in todos_conflictivos:
         else:
             
             pass 
+
+#Se comprueba los alumnos conflictivos con los alumnos de movilidad reducida.
+#Si son hermanos han de comprobarse puesto que uno de ellos es de movilidad reducida y el otro debe respectar el espacio.
             
 for i in todos_conflictivos:
     
     for j in todos_mov_reducida:
         
         if i != j:
-            
-            if i[4] != j[0]:
-            
-                problem.addConstraint(conflictivos, (i,j))
-                
-            else:
-            
-                pass 
+       
+            problem.addConstraint(conflictivos, (i,j))
             
         else:
             
             pass 
+
+#Se comprueba los alumnos de movilidad reducida con los alumnos de movilidad reducida.
+#Al igual que en el anterior caso, si son hermanos se comprueba que uno de ellos es de movilidad reducida y el otro debe respetar el espacio.
             
 for i in todos_mov_reducida:
     
@@ -346,6 +351,8 @@ for i in todos_mov_reducida:
         else:
             
                 pass 
+
+#Se comprueba los alumnos de movilidad reducida con los alumnos comunes y que deben dejar el espacio necesario, también entre hermanos.
                         
 for i in todos_mov_reducida:
     
@@ -353,7 +360,9 @@ for i in todos_mov_reducida:
             
         problem.addConstraint(mov_reducida, (i,j))
 
-todos_mov_red_y_conflictivos = todos_mov_reducida + todos_conflictivos
+#Entre si los hermanos se comprueba su ciclo y las restricciones de hermanos en cuanto a los ciclos.
+#Se tiene en cuenta las características de los hermanos y se añaden las constraints según estas.
+#Los únicos que darían problemas son los de movilidad reducida.
 
 for i in alumnos_hermanos:
     
@@ -378,39 +387,9 @@ for i in alumnos_hermanos:
                 
         if i[1] == alumno_hermano[1]:
             
-            problem.addConstraint(hermanos_ciclos, (i, alumno_hermano))
-        
-# for i in alumnos_hermanos:
-    
-#     for j in  todos_no_hermanos:
-        
-#         if i[3] == "R" and j[3] == "R":
-            
-#             problem.addConstraint(mov_reducida, (i, j))
-            
-#         if i[3] == "R" or j[2] == "C":
-            
-#             problem.addConstraint(conflictivos, (j, i))
-            
-#         if i[3] == "R" and (j[2] == "X" and j[3] == "X"):
-            
-#             problem.addConstraint(mov_reducida, (i, j))
-            
-#         if i[2] == "C" and j[3] == "R":
-            
-#             problem.addConstraint(conflictivos, (i, j))
-            
-#         if i[2] == "C" and j[2] == "C":
-            
-#             problem.addConstraint(conflictivos, (i, j))
-            
-# #         if (i[2] == "X" and i[3] == "X") and j[3] == "R":
-            
-# #             problem.addConstraint(mov_reducida, (j, i))  
+            problem.addConstraint(hermanos_ciclos, (i, alumno_hermano))        
 
-#         else:
-            
-#             pass        
+#Se comprueba que los alumnos no tengan un mismo asiento asignado.
                                 
 problem.addConstraint(AllDifferentConstraint())
 
