@@ -38,7 +38,7 @@ problem = constraint.Problem()
 
 #Se guarda el archivo de entrada introducido por terminal en una variable.
 
-data = "hola.txt"    
+data = sys.argv[1]  
 data.replace(".txt", ".csv")
 
 #Leemos el archivo de entrada y se guardan los datos leidos en una lista de tuplas.
@@ -226,7 +226,7 @@ def conflictivos(a,b):
     
     #Se comprueba el mismo caso de la horizontal para la horizontal de arriba y de abajo. Es decir, la fila de de arriba y la de abajo al alumno conflictivo.
     
-    elif (abs(a[0] - b[0]) == 1) and abs(a[1] - b[1]) > 1:
+    elif abs(a[0] - b[0]) == 1 and abs(a[1] - b[1]) > 1:
         
         return True
     
@@ -247,7 +247,7 @@ def mov_reducida(a,b):
         
         return True
         
-    elif abs(a[0] - b[0]) > 1:
+    elif abs(a[0] - b[0]) > 0:
         
         return True
 
@@ -257,9 +257,15 @@ def hermanos_ciclos(a,b):
     #Esto es, tengan mismo ciclo o no según, el dominio de los hermanos será el mismo y han de estar al lado.
     #La diferencia entre uno y otro en asientos de la horizontal o fila debe ser 1.
     
-    if a[0] == b[0] and abs(a[1] - b[1]) == 1 and (((a[1] != 3 and a[1] != 0) and (b[1] == 3 or b[1] == 0)) or ((a[1] != 1 and a[1] != 2) and (b[1] == 1 or b[1] == 2))):
+    if a[0] == b[0] and abs(a[1] - b[1]) == 1:
         
-        return True
+        if (a[1] == 1 and b[1] != 2) or (a[1] == 2 and b[1] != 1):
+            
+            return True
+        
+        elif (b[1] == 1 and a[1] != 2) or (b[1] == 2 and a[1] != 1):
+        
+            return True
 
 def hermanos_distinto_ciclo(a,b):
     
@@ -273,121 +279,137 @@ def hermanos_distinto_ciclo(a,b):
 
 #Se añaden las restricciones al problema.
 
-#Movilidad reducida.
-
-#Se añaden las restricciones de movilidad reducida para los alumnos que la tengan según su ciclo.
-
-todos_conflictivos = alumnos_conflictivos + alumnos_mov_reducida_conflictivos
-todos_mov_reducida = alumnos_mov_reducida + alumnos_mov_reducida_conflictivos
-     
-#------------------------------------------------------------
-
-#Para una mayor facilidad en las constraints se añadiran los alumnos que son hermanos a las listas según sus características.
-
-for i in alumnos_hermanos:
+for i in alumnos_bus:
     
-    if i[3] == "R":
+    for j in alumnos_bus:
         
-        if i[2] == "C":
-            
-            todos_mov_reducida.append(i)
-            todos_conflictivos.append(i)
-            
-        else:
-            
-            todos_mov_reducida.append(i)
-            
-    elif i[2] == "C":
+        #Se comprueba todos los alumnos del autobus con todos. Se comprueba siempre que los alumnos seleccionados no sean el mismo.
+        #Se comprueba que el alumno sea conflictivo o conflictivo y de movilidad reducida, si el alumno a comparar es conflictivo o de movilidad reducida o ambas se aplica la restrición de conflictivos, de movilidad reducida o ambas.
         
-        todos_conflictivos.append(i)
-
-#Una vez se añadan se comprueba los alumnos conflictivos con los alumnos conflictivos.
-#Si dos alumnos son hermanos en este caso se ignora y se pasa al siguiente.
-
-for i in todos_conflictivos:
-    
-    for j in todos_conflictivos:
-        
-        if i != j:
-            
-            if i[4] != j[0]:
-            
-                problem.addConstraint(conflictivos, (i,j))  
-            
-            else:
-            
-                pass 
-                
-        else:
-            
-            pass 
-
-#Se comprueba los alumnos conflictivos con los alumnos de movilidad reducida.
-#Si son hermanos han de comprobarse puesto que uno de ellos es de movilidad reducida y el otro debe respectar el espacio.
-            
-for i in todos_conflictivos:
-    
-    for j in todos_mov_reducida:
-        
-        if i != j:
-       
+        if i != j and (j in alumnos_conflictivos or j in alumnos_mov_reducida or j in alumnos_mov_reducida_conflictivos) and (i in alumnos_conflictivos or i in alumnos_mov_reducida_conflictivos):
+               
             problem.addConstraint(conflictivos, (i,j))
-            
-        else:
-            
-            pass 
-
-#Se comprueba los alumnos de movilidad reducida con los alumnos de movilidad reducida.
-#Al igual que en el anterior caso, si son hermanos se comprueba que uno de ellos es de movilidad reducida y el otro debe respetar el espacio.
-            
-for i in todos_mov_reducida:
-    
-    for j in todos_mov_reducida:
+                
         
-        if i != j:
+        #Si sólo es de movilidad reducida el alumno.
+                     
+        elif i != j and (j in alumnos_mov_reducida or alumnos_comunes) and i in alumnos_mov_reducida:
             
             problem.addConstraint(mov_reducida, (i,j))
-            
-        else:
-            
-                pass 
-
-#Se comprueba los alumnos de movilidad reducida con los alumnos comunes y que deben dejar el espacio necesario, también entre hermanos.
-                        
-for i in todos_mov_reducida:
-    
-    for j in alumnos_comunes:
-            
-        problem.addConstraint(mov_reducida, (i,j))
-
-#Entre si los hermanos se comprueba su ciclo y las restricciones de hermanos en cuanto a los ciclos.
-#Se tiene en cuenta las características de los hermanos y se añaden las constraints según estas.
-#Los únicos que darían problemas son los de movilidad reducida.
-
-for i in alumnos_hermanos:
-    
-    index_hermano = int(i[4]) - 1
-    alumno_hermano = alumnos_bus[index_hermano]
-    
-    if i[3] == "R" or alumno_hermano[3] == "R" or (i[3] == "R" and alumno_hermano[3] == "R"):
-    
-        pass
-    
-    else:
         
-        if i[1] != alumno_hermano[1]:
+        #Si el alumno esta en la lista de hermanos.
             
-            if int(i[1]) < int(alumno_hermano[1]):
+        elif i != j and i in alumnos_hermanos:
             
-                problem.addConstraint(hermanos_distinto_ciclo, (i, alumno_hermano))
+            #Se comprueba si el alumno a comparar es hermano del alumno seleccionado. Se aplican las restricciones según el caso.
+            
+            if i[4] == j[0]:
                 
+                #Ambos conflictivos.
+                
+                if i[2] == j[2]:
+                    
+                    #No son de movilida reducida ninguno.
+                    
+                    if i[3] != "R" and j[3] != "R":
+                        
+                        #Mismo ciclo.
+                        
+                        if i[1] == j[1]:
+                        
+                            problem.addConstraint(hermanos_ciclos, (i,j))
+                        
+                        #Distinto ciclo.
+                            
+                        else:
+                            
+                            if i[1] > j[1]:
+                                
+                                problem.addConstraint(hermanos_distinto_ciclo, (j,i))
+                                
+                            else:
+                                
+                                problem.addConstraint(hermanos_distinto_ciclo, (i,j))   
+                    
+                    #Ambos de movilidad reducida.
+                        
+                    else:
+                        
+                        problem.addConstraint(conflictivos, (i,j))
+                
+                #Si uno es conflictivo y el otro no o ninguno es conflictivo.
+                            
+                else:
+                    
+                    if i[3] != "R" and j[3] != "R":
+                        
+                        if i[1] == j[1]:
+                                
+                            problem.addConstraint(hermanos_ciclos, (i,j))
+                                
+                        else:
+                            
+                            if i[1] > j[1]:
+                                
+                                problem.addConstraint(hermanos_distinto_ciclo, (j,i))
+                                
+                            else:
+                                
+                                problem.addConstraint(hermanos_distinto_ciclo, (i,j))   
+                                
+                    elif i[3] == "R" and j[3] == "R":
+                        
+                        if i[2] != j[2]:
+                            
+                            problem.addConstraint(conflictivos, (i,j))
+                            
+                        else:
+                            
+                            problem.addConstraint(mov_reducida, (i,j))
+                        
+                    elif i[3] == "R" or j[3] == "R":
+                        
+                        if i[2] == "C" and j[3] == "R":
+                            
+                            problem.addConstraint(conflictivos, (i,j))
+                            
+                        elif i[3] == "R" and j[2] == "C":
+                            
+                            problem.addConstraint(conflictivos, (j,i))
+                        
+                        else:
+                        
+                            problem.addConstraint(mov_reducida, (i,j))
+            
+            #Si los alumnos no son hermanos. Se comprueban los casos posibles.
+                        
             else:
                 
-                problem.addConstraint(hermanos_distinto_ciclo, (alumno_hermano, i))
+                #Alumno seleccionado conflictivo.
                 
-        if i[1] == alumno_hermano[1]:
-            
-            problem.addConstraint(hermanos_ciclos, (i, alumno_hermano))        
+                if (i[2] == "C" and i[3] != "R") or (i[2] == "C" and i[3] == "R"):
+                    
+                    if j[2] == "C" or j[3] == "R" or (j[2] == "C" and j[3] == "R"):
+                        
+                        problem.addConstraint(conflictivos, (i,j))
+                
+                #Alumno seleccionado de movilidad reducida.
+                        
+                elif i[2] != "C" and i[3] == "R":
+                    
+                    if (j[2] == "C" and j[3] == "R") or (j[2] == "C" and j[3] != "R"):
+                        
+                        problem.addConstraint(conflictivos, (j,i))
+                        
+                    elif (j[2] != "C" and j[3] == "R") or (j[2] != "C" and j[3] != "R"):
+                        
+                        problem.addConstraint(mov_reducida, (i,j))
+                        
+                elif i!= "C" and i[3] != "R":
+                    
+                    if j[3] == "R":
+                        
+                        problem.addConstraint(mov_reducida, (i,j))     
 
 #Se comprueba que los alumnos no tengan un mismo asiento asignado.
                                 
@@ -395,6 +417,22 @@ problem.addConstraint(AllDifferentConstraint())
 
 #------------------------------------------------------------
 
+def transfromToSolution(alumnos, aSolution):
+    
+    for i in alumnos:
+        
+        alumno = str(i[0] + i[3] + i[2])
+        for key, value in aSolution.items(): 
+            
+            alumnos_sol = str(key[0] + key[3] + key[2])
+            if alumno == alumnos_sol:
+                
+                position = value[0]*4 + value[1] + 1
+                text_solution[alumno] = position
+                
+    return text_solution
+
+#------------------------------------------------------------
 #Conseguir las soluciones.
 
 soluciones = problem.getSolutions()
@@ -416,16 +454,17 @@ else:
 #Imprimir las soluciones en un archivo de texto con extensión '.output', inversión de la matriz.
 #Se crea un diccionario con los alumnos y su posición en el autobus.
 
-    for i in range(len(alumnos_bus)):
+    text_solution = transfromToSolution(alumnos_bus, solucion)
+
+    x = 0                
+    while x < 10:
         
-        alumno = str(alumnos_bus[i][0] + alumnos_bus[i][3] + alumnos_bus[i][2])
-        for key, value in solucion.items(): 
-            
-            alumnos_sol = str(key[0] + key[3] + key[2])
-            if alumno == alumnos_sol:
-                
-                position = value[0]*4 + value[1] + 1
-                text_solution[alumno] = position
+        other_sol = random.choice(soluciones)
+        other_solution = transfromToSolution(alumnos_bus, other_sol)
+                    
+        print(str(other_solution))
+        
+        x += 1
 
 #------------------------------------------------------------
 

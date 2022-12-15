@@ -7,11 +7,14 @@ import csv
 import time
 from Node import Node
 import sys
+import os.path
+import pathlib
 
 #Lectura del fichero de entrada.
 #El fichero de entrada se toma como argumento de la terminal al ejecutar el programa por esta.
-
-data = "ggg.output"
+heuristica = sys.argv[2]
+heuristica = int(heuristica)
+data = sys.argv[1]
 data.replace(".txt", ".csv")
 
 #Se lee el fichero de entrada y se almacena en una lista de listas.
@@ -21,8 +24,7 @@ file.close()
 
 #Se obtiene la solución al problema de la parte anterior y se transforma el diccionario en el siguiente formato.
 #[['3XX', '11'], ['1CX', '12'], ['6XX', '15'], ['5XX', '16'], ['8XR', '18'], ['4CR', '20'], ['2XX', '31'], ['7CX', '32']]
-
-alumnos_bus = alumnos_bus[1]
+alumnos_bus = alumnos_bus[0]
 for i in range(len(alumnos_bus)):
     
     alumnos_bus[i] = alumnos_bus[i].split(" ")
@@ -66,7 +68,7 @@ def orderListAlumnos (lista):
     
     temp = 0
     for i in range(len(lista)):
-        
+    
         temp = int(lista[i][1])
         lista[i][1] = lista[i][0]
         lista[i][0] = temp
@@ -88,173 +90,368 @@ def orderListAlumnos (lista):
 #Se recuerda que el coste de un alumno a subir a uno con movilidad reducida es de 3.
 #Un alumno común cuesta 1.
 #Un alumno conflictivo cuesta 1 pero duplica el coste de los que se encuentren delante y atrás de él.
-#TODO: Se tiene que implementar el último punto de los conflictivos, con el que se necesita la cola_ordenada.
 
 def calculateAllCost (node, cola_ordenada, l_nodos):
     
     gcost = 0
-    addedNode = node.state
-    for i in range(len(addedNode)):
+    addedNode = node
+    if len(addedNode) == 1:
         
-        #Para los siguientes casos se calcula el coste de un alumno en la cola.
-        #Se representan estas condiciones con una lista para entender cada condición.
-        #Formato de la lista: [abuelo, padre, nodo, hijo]
+        if addedNode[0][3] == "R":
+            
+            gcost += 0
+            
+        else:
+            
+            gcost += 1
+            
+        return gcost
+    
+    elif len(addedNode) == 2:
         
-        if addedNode[i][1] == "X" and addedNode[i][2] == "X":
+        for i in range(len(addedNode)):
             
-            if addedNode[i-1][1] == "X" and addedNode[i-1][2] == "R":
+            if addedNode[i][2] == "X" and addedNode[i][3] == "X":
+                    
+                    if addedNode[i-1][2] == "X" and addedNode[i-1][3] == "R":
+                        
+                        if i != len(addedNode) - 1:
+                        #[##, XR, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2
+                                
+                            else:
+                                
+                                #[##, XR, XX, ##]
+                                gcost += 3
+                                
+                        else:
+                            
+                            gcost += 3
+                        
+                    elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "X":
+                        if i != len(addedNode) - 1:
+                        #[##, CX, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 1*2*2
+                                
+                            else:
+                                
+                                #[##, CX, XX, ##]
+                                gcost += 1*2
+                                
+                        else:
+                            
+                            gcost += 1*2
+                            
+                    elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "R":
+                        
+                        #[##, CR, XX, C#]
+                        if i != len(addedNode) - 1:
+                        
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2
+                                
+                            else:
+                                
+                                #[##, CR, XX, ##]
+                                gcost += 3*2
+                        
+                        else:
+                            
+                            gcost += 3*2
+                            
+                    elif addedNode[i-1][2] == "X" and addedNode[i-1][3] == "X":
+                        
+                        #[##, XX, XX, C#]
+                        if i != len(addedNode) - 1:
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 1*2
+                                
+                            else:
+                                
+                                #[##, XX, XX, ##]
+                                gcost += 1
+                            
+            if addedNode[i][2] == "C" and addedNode[i][3] == "X":
                 
-                if addedNode[i-2][1] == "C":
-                    
-                    #[C#, XR, XX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2
-                        
-                    else:
-                        
-                        #[C#, XR, XX, ##]
-                        gcost += 3*2
-                        
-                else:
-                    
-                    #[##, XR, XX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2
-                        
-                    else:
-                        
-                        #[##, XR, XX, ##]
-                        gcost += 3
-                
-            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "X":
-                
-                #[##, CX, XX, C#]
-                if addedNode[i+1][1] == "C":
-                    
-                    gcost += 1*2*2
-                    
-                else:
-                    
-                    #[##, CX, XX, ##]
-                    gcost += 1*2
-                    
-            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "R":
-                
-                if addedNode[i-2][1] == "C":
-                    
-                    #[C#, CR, XX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2*2
-                        
-                    else:
-                        
-                        #[C#, CR, XX, ##]
-                        gcost += 3*2*2
-                        
-                else:
-                    
-                    #[##, CR, XX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2
-                        
-                    else:
-                        
-                        #[##, CR, XX, ##]
-                        gcost += 3*2
-                    
-            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
-                
-                #[##, XX, XX, C#]
-                if addedNode[i+1][1] == "C":
-                    
-                    gcost += 1*2
-                    
-                else:
-                    
-                    #[##, XX, XX, ##]
-                    gcost += 1
-                    
-        if addedNode[i][1] == "C" and addedNode[i][2] == "X":
-            
-            if addedNode[i-1][1] == "X" and addedNode[i-1][2] == "R":
-                
-                if addedNode[i-2][1] == "C":
-                    
-                    #[C#, XR, CX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2*2
-                        
-                    else:
-                        
-                        #[C#, XR, CX, ##]
-                        gcost += 3*2*2
-                        
-                else:
-                    
+                if addedNode[i-1][2] == "X" and addedNode[i-1][3] == "R":
+                    if i != len(addedNode) - 1:
                     #[##, XR, CX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2
-                        
+                        if addedNode[i+1][2] == "C":
+                            
+                            gcost += 3*2*2
+                            
+                        else:
+                            
+                            #[##, XR, CX, ##]
+                            gcost += 3*2
+                            
                     else:
+                            
+                            gcost += 3*2
                         
-                        #[##, XR, CX, ##]
-                        gcost += 3*2
-                
-            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "X":
-                
-                #[##, CX, CX, C#]
-                if addedNode[i+1][1] == "C":
-                    
-                    gcost += 1*2*2
-                    
-                else:
-                    
-                    #[##, CX, CX, ##]
-                    gcost += 1*2
-                    
-            elif addedNode[i-1][1] == "C" and addedNode[i-1][2] == "R":
-                
-                if addedNode[i-2][1] == "C":
-                    
-                    #[C#, CR, CX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2*2*2
-                        
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                    #[##, CX, CX, C#]
+                        if addedNode[i+1][2] == "C" and addedNode[i+1][3] == None:
+                            
+                            gcost += 1*2*2
+                            
+                        else:
+                            
+                            #[##, CX, CX, ##]
+                            gcost += 1*2
                     else:
+                            
+                            gcost += 1*2
                         
-                        #[C#, CR, CX, ##]
-                        gcost += 3*2*2*2
-                        
-                else:
-                    
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "R":
+                    if i != len(addedNode) - 1:    
                     #[##, CR, CX, C#]
-                    if addedNode[i+1][1] == "C":
-                        
-                        gcost += 3*2*2*2
-                        
+                        if addedNode[i+1][2] == "C":
+                            
+                            gcost += 3*2*2*2
+                            
+                        else:
+                            
+                            #[##, CR, CX, ##]
+                            gcost += 3*2*2
+                    
                     else:
+                            
+                            gcost += 3*2*2
                         
-                        #[##, CR, CX, ##]
-                        gcost += 3*2*2
+                elif addedNode[i-1][2] == "X" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                    #[##, XX, CX, C#]
+                        if addedNode[i+1][2] == "C":
+                            
+                            gcost += 1*2
+                            
+                        else:
+                            
+                            #[##, XX, CX, ##]
+                            gcost += 1
+                            
+                    else:
+                            
+                            gcost += 1*2
+        
+    else:
+    
+        for i in range(len(addedNode)):
+            
+            #Para los siguientes casos se calcula el coste de un alumno en la cola.
+            #Se representan estas condiciones con una lista para entender cada condición.
+            #Formato de la lista: [abuelo, padre, nodo, hijo]
+            
+            if addedNode[i][2] == "X" and addedNode[i][3] == "X":
+                if addedNode[i-1][2] == "X" and addedNode[i-1][3] == "R":
                     
-            elif addedNode[i-1][1] == "X" and addedNode[i-1][2] == "X":
+                    if addedNode[i-2][2] == "C":
+                        if i != len(addedNode) - 1:
+                        #[C#, XR, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2
+                                
+                            else:
+                                
+                                #[C#, XR, XX, ##]
+                                gcost += 3*2
+                        else:
+                                
+                                #[C#, XR, XX, ##]
+                                gcost += 3*2
+                            
+                    else:
+                        if i != len(addedNode) - 1:
+                        #[##, XR, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2
+                                
+                            else:
+                                
+                                #[##, XR, XX, ##]
+                                gcost += 3
+                        else:
+                                
+                                #[##, XR, XX, ##]
+                                gcost += 3
+                    
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                    #[##, CX, XX, C#]
+                        if addedNode[i+1][2] == "C":
+                            
+                            gcost += 1*2*2
+                            
+                        else:
+                            
+                            #[##, CX, XX, ##]
+                            gcost += 1*2
+                    else:
+                            
+                            #[##, CX, XX, ##]
+                            gcost += 1*2
+                        
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "R":
+                    
+                    if addedNode[i-2][2] == "C":
+                        if i != len(addedNode) - 1:
+                            #[C#, CR, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2*2
+                                
+                            else:
+                                
+                                #[C#, CR, XX, ##]
+                                gcost += 3*2*2
+                        else:
+                                
+                                #[C#, CR, XX, ##]
+                                gcost += 3*2*2
+                            
+                    else:
+                        if i != len(addedNode) - 1:
+                        #[##, CR, XX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2
+                                
+                            else:
+                                
+                                #[##, CR, XX, ##]
+                                gcost += 3*2
+                        else:
+                                
+                                #[##, CR, XX, ##]
+                                gcost += 3*2
+                        
+                elif addedNode[i-1][2] == "X" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                    #[##, XX, XX, C#]
+                        if addedNode[i+1][3] == "C":
+                            
+                            gcost += 1*2
+                            
+                        else:
+                            
+                            #[##, XX, XX, ##]
+                            gcost += 1
+                    else:
+                            
+                            #[##, XX, XX, ##]
+                            gcost += 1
+                        
+            if addedNode[i][2] == "C" and addedNode[i][3] == "X":
                 
-                #[##, XX, CX, C#]
-                if addedNode[i+1][1] == "C":
+                if addedNode[i-1][2] == "X" and addedNode[i-1][3] == "R":
                     
-                    gcost += 1*2
+                    if addedNode[i-2][2] == "C":
+                        if i != len(addedNode) - 1:
+                        #[C#, XR, CX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2*2
+                                
+                            else:
+                                
+                                #[C#, XR, CX, ##]
+                                gcost += 3*2*2
+                        else:
+                                
+                                #[C#, XR, CX, ##]
+                                gcost += 3*2*2
+                            
+                    else:
+                        if i != len(addedNode) - 1:
+                        #[##, XR, CX, C#]
+                            if addedNode[i+1][3] == "C":
+                                
+                                gcost += 3*2*2
+                                
+                            else:
+                                
+                                #[##, XR, CX, ##]
+                                gcost += 3*2
+                        else:
+                                
+                                #[##, XR, CX, ##]
+                                gcost += 3*2
                     
-                else:
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                        #[##, CX, CX, C#]
+                        if addedNode[i+1][2] == "C" and addedNode[i+1][2] == None:
+                            
+                            gcost += 1*2*2
+                            
+                        else:
+                            
+                            #[##, CX, CX, ##]
+                            gcost += 1*2
+                    else:
+                            
+                            #[##, CX, CX, ##]
+                            gcost += 1*2
+                        
+                elif addedNode[i-1][2] == "C" and addedNode[i-1][3] == "R":
                     
-                    #[##, XX, CX, ##]
-                    gcost += 1
+                    if addedNode[i-2][2] == "C":
+                        if i != len(addedNode) - 1:
+                        #[C#, CR, CX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2*2*2
+                                
+                            else:
+                                
+                                #[C#, CR, CX, ##]
+                                gcost += 3*2*2*2
+                        else:
+                                
+                                #[C#, CR, CX, ##]
+                                gcost += 3*2*2*2
+                            
+                    else:
+                        if i != len(addedNode) - 1:
+                        #[##, CR, CX, C#]
+                            if addedNode[i+1][2] == "C":
+                                
+                                gcost += 3*2*2*2
+                                
+                            else:
+                                
+                                #[##, CR, CX, ##]
+                                gcost += 3*2*2
+                        else:
+                                
+                                #[##, CR, CX, ##]
+                                gcost += 3*2*2
+                        
+                elif addedNode[i-1][2] == "X" and addedNode[i-1][3] == "X":
+                    if i != len(addedNode) - 1:
+                        #[##, XX, CX, C#]
+                        if addedNode[i+1][2] == "C":
+                            
+                            gcost += 1*2
+                            
+                        else:
+                            
+                            #[##, XX, CX, ##]
+                            gcost += 1
+                    else:
+                                
+                                #[##, CR, CX, ##]
+                                gcost += 3*2*2
             
     return gcost
 
@@ -262,7 +459,7 @@ def calculateAllCost (node, cola_ordenada, l_nodos):
 
 #Función para calcular el coste g de un nodo.
 
-def calculateGCost (node, cola_ordenada, l_nodos, parentcost):
+def calculateGCost (node, cola_ordenada, l_nodos, parentcost,parent):
     
     addedNode = node
     countConflicts = 0
@@ -272,23 +469,17 @@ def calculateGCost (node, cola_ordenada, l_nodos, parentcost):
     
     for i in addedNode:
         
-        if i[1] == "C":
+        if i[2] == "C":
             
             countConflicts += 1
             
     #En el caso de haber conflictivos, se calcula el coste g de la cola con una función externa al ser un caso especial.        
     if countConflicts >= 1:
         
-        return calculateAllCost(node, cola_ordenada)
+        return calculateAllCost(node, cola_ordenada, l_nodos)
     
     #En caso contrario, se calcula el coste g de la cola de una forma más sencilla.
     #Si el nodo añadido es el primer alumno que se introduce en la cola.
-    
-    for i in l_nodos:
-        
-        if i.gCost == parentcost:
-            
-            parent = i.parent
             
     if parent == None or parent == []:
         
@@ -315,10 +506,10 @@ def calculateGCost (node, cola_ordenada, l_nodos, parentcost):
         
         nodeParent = parent
         nodeParent = nodeParent[-1]
-        nodeParent = str(nodeParent[1] + nodeParent[2])
+        nodeParent = str(nodeParent[2] + nodeParent[3])
         
         addedNode = addedNode[-1]
-        addedNode = str(addedNode[1] + addedNode[2])
+        addedNode = str(addedNode[2] + addedNode[3])
         
         if nodeParent == "XX" and addedNode == "XX":
             
@@ -349,7 +540,7 @@ def calculateHCost (node, heuristic, cola_ordenada):
     hcost = 0
     
     if heuristic == 1:
-        
+
         #Se calcula el coste heurístico con la longitud que tenga la cola inicial de alumnos - la longitud del nodo.
         hcost = len(cola_ordenada) - len(node)
         
@@ -367,9 +558,9 @@ def calculateHCost (node, heuristic, cola_ordenada):
 #Calcular el valor del nodo expandido.
 #Es necesario el uso de funciones externas para los costes g y h, estas funciones son las anteriores.
 
-def caculateNodeCosts(node, heuristic, parentcost ,cola_ordenada, l_nodos):
+def caculateNodeCosts(node, heuristic, parentcost , parent,cola_ordenada, l_nodos):
     
-    gCost = calculateGCost(node, cola_ordenada, l_nodos, parentcost)
+    gCost = calculateGCost(node, cola_ordenada, l_nodos, parentcost, parent)
     hCost, goal = calculateHCost(node, heuristic, cola_ordenada)
 
     #Se devulve si el es el estado meta o no.
@@ -418,21 +609,13 @@ def nodeChildren(lista_tomar, lista_poner, l_nodos, expandedNode, heuristic):
     
     goal = False
     
+    nodeParentcost = 0
+    
     for i in l_nodos:
         
         if i.state == expandedNode:
             
             nodeParentcost = i.gCost
-    
-    # if len(expandedNode) == 0:
-        
-    #     toExpandNode = []
-    
-    # else:          
-        
-    #     for i in expandedNode:
-            
-    #         toExpandNode.append(i)
     
     for i in lista_tomar:
         
@@ -446,13 +629,10 @@ def nodeChildren(lista_tomar, lista_poner, l_nodos, expandedNode, heuristic):
             if len(expansionNode) == 0:
                 
                 expansionNode.append(i[0])
-                gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost ,lista_tomar, l_nodos)
+                gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost, expandedNode ,lista_tomar, l_nodos)
                 node = Node(expansionNode, expandedNode, gcost, hcost)
                 l_nodos.append(node)
-                print(node.state)
                 lista_poner.append(node.state)
-                print(lista_poner)
-
                 
             else:
                 
@@ -462,13 +642,13 @@ def nodeChildren(lista_tomar, lista_poner, l_nodos, expandedNode, heuristic):
                 #Se comprueba que los hijos cumplen las normas.
                 #Si el alumno anterior es de movilidad reducida y el alumno añadido es de movilidad reducida no se añade.
                 
-                if checkLast[2] == "R" and addedAlumno[2] == "R":
+                if checkLast[3] == "R" and addedAlumno[3] == "R":
                     
                     pass
                 
                 #Si el añadido es de movilidad reducida y el nodo expandido tiene la longitud de la cola inicial - 1, no se añade.
                 
-                elif addedAlumno[2] == "R" and (len(expansionNode) == (len(lista_tomar) - 1)):
+                elif addedAlumno[3] == "R" and (len(expansionNode) == (len(lista_tomar) - 1)):
                     
                     pass
                 
@@ -479,12 +659,10 @@ def nodeChildren(lista_tomar, lista_poner, l_nodos, expandedNode, heuristic):
                     #Finalmente se añade a la openList.
                     
                     expansionNode.append(i[0])
-                    gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost ,lista_tomar, l_nodos)
+                    gcost, hcost ,goal = caculateNodeCosts(expansionNode, heuristic, nodeParentcost, expandedNode ,lista_tomar, l_nodos)
                     node = Node(expansionNode, expandedNode, gcost, hcost)
                     l_nodos.append(node)
-                    print(node.state)
                     lista_poner.append(node.state)
-                    print(lista_poner)
     
     #Se ordena y se devuelve la openList con los hijos añadidos y si se ha llegado al nodo meta.
         
@@ -513,8 +691,6 @@ def searchGoalNode (lista_nodos, longitud_estado):
             pass
             
     orderListAlumnos(nodos_meta)
-    
-    print (nodos_meta)
     
     return nodos_meta[0][0], nodos_meta[0][1]      
 
@@ -585,12 +761,11 @@ def AStarAlgorithm (cola_ordenada, heuristic):
 #Sort de la lista de alumnos según el asiento que tengan
 
 orderListAlumnos(alumnos_bus)
-print(alumnos_bus)
 
 #Llamada al algoritmo A* y comienzo del contador de tiempo
 
 start_time = time.time()
-resultado, costeNodoMeta ,nodosExpandidos = AStarAlgorithm(alumnos_bus, 1)
+resultado, costeNodoMeta ,nodosExpandidos = AStarAlgorithm(alumnos_bus, heuristica)
 end_time = time.time() - start_time
 #Creamos el diccionario con el resultado de la cola de alumnos
 
@@ -598,13 +773,19 @@ colaAlumnos = transformGoalNode(resultado, alumnos_bus)
 
 #Creamos el archivo de salida
 
-data.replace(".txt", ".output")
-file_output = open(data, "w")
-file_output.seek(0)
-file_output.truncate()
+output_file = ""
+for i in range(len(data)):
+    if data[i] == ".":
+        break
+    output_file += data[i]
+output_file += ".output"
+path = pathlib.Path(__file__).parent.resolve()
+output_file = os.path.join(path, output_file)
+data.replace(".prob", ".output")
+file_output = open(output_file, "w")
 file_output.write("Tiempo total: " + str(end_time) + "\n")
 file_output.write("Coste total: " + str(costeNodoMeta) + "\n")
-file_output.write("Longitud del plan: " + str(4) + "\n") #TODO: Calcular la longitud del plan
+file_output.write("Longitud del plan: " + "No se llegó ha implementar" + "\n") 
 file_output.write("Nodos expandidos: " + str(nodosExpandidos) + "\n")
 file_output.write(str(colaAlumnos))
 file_output.close()
